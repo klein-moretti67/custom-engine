@@ -33,8 +33,13 @@ jobs:
     - name: Install dependencies
       run: |
         choco install make
+        vcpkg install glfw3:x64-windows
         mkdir -Force include/stb
         curl -L https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -o include/stb/stb_image.h
 
     - name: Build
-      run: make all
+      shell: bash
+      run: |
+        export INCLUDE="$VCPKG_INSTALLATION_ROOT/installed/x64-windows/include;$INCLUDE"
+        export LIB="$VCPKG_INSTALLATION_ROOT/installed/x64-windows/lib;$LIB"
+        make all
