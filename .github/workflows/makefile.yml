@@ -33,17 +33,22 @@ jobs:
     - name: Install dependencies
       run: |
         choco install make
-        vcpkg install glfw3:x64-windows
+        vcpkg install glfw3:x64-windows-static
         mkdir -Force include/stb
         curl -L https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -o include/stb/stb_image.h
+
+    - name: Diagnostic - List vcpkg files
+      shell: pwsh
+      run: |
+        Get-ChildItem -Path "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static/lib" -Filter *.lib -Recurse
 
     - name: Configure paths
       shell: pwsh
       run: |
-        $inc = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows/include"
-        $lib = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows/lib"
-        echo "INCLUDE=$inc;$env:INCLUDE" >> $env:GITHUB_ENV
-        echo "LIB=$lib;$env:LIB" >> $env:GITHUB_ENV
+        $inc = Join-Path $env:VCPKG_INSTALLATION_ROOT "installed/x64-windows-static/include"
+        $lib = Join-Path $env:VCPKG_INSTALLATION_ROOT "installed/x64-windows-static/lib"
+        "INCLUDE=$inc;$env:INCLUDE" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        "LIB=$lib;$env:LIB" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
     - name: Build
       run: make all
