@@ -37,9 +37,13 @@ jobs:
         mkdir -Force include/stb
         curl -L https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -o include/stb/stb_image.h
 
-    - name: Build
+    - name: Configure paths
       shell: pwsh
       run: |
-        $env:INCLUDE = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows/include;$env:INCLUDE"
-        $env:LIB = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows/lib;$env:LIB"
-        make all
+        $inc = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows/include"
+        $lib = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows/lib"
+        echo "INCLUDE=$inc;$env:INCLUDE" >> $env:GITHUB_ENV
+        echo "LIB=$lib;$env:LIB" >> $env:GITHUB_ENV
+
+    - name: Build
+      run: make all
