@@ -22,6 +22,12 @@ jobs:
     - name: Build
       run: make all
 
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: engine-linux
+        path: engine
+
   build-windows:
     runs-on: windows-latest
     steps:
@@ -52,3 +58,44 @@ jobs:
 
     - name: Build
       run: make all
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: engine-windows
+        path: engine.exe
+
+  release:
+    needs: [build-linux, build-windows]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Download Linux binary
+      uses: actions/download-artifact@v4
+      with:
+        name: engine-linux
+        path: release-assets
+
+    - name: Download Windows binary
+      uses: actions/download-artifact@v4
+      with:
+        name: engine-windows
+        path: release-assets
+
+    - name: Rename binaries
+      run: |
+        mv release-assets/engine release-assets/engine-linux
+        mv release-assets/engine.exe release-assets/engine-windows.exe
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: build-${{ github.sha }}
+        name: Release Build ${{ github.sha }}
+        files: |
+          release-assets/engine-linux
+          release-assets/engine-windows.exe
+        draft: false
+        prerelease: false
