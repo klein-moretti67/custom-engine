@@ -11,10 +11,20 @@ extern "C" {
 #endif
 #endif
 
+#include <errno.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#ifdef _WIN32
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
 
 #include "include/KHR/khrplatform.h"
 
@@ -57,13 +67,23 @@ extern "C" {
 
 char *fileReader(const char *fileName) {
   FILE *filePointer = fopen(fileName, "r");
-  if (!filePointer)
+  if (!filePointer) {
+    char cwd[1024];
+    if (GetCurrentDir(cwd, sizeof(cwd)) != NULL) {
+      fprintf(stderr, "Error opening file '%s' (CWD: %s): %s\n", fileName, cwd,
+              strerror(errno));
+    } else {
+      fprintf(stderr, "Error opening file '%s': %s\n", fileName,
+              strerror(errno));
+    }
     return NULL;
+  }
   fseek(filePointer, 0, SEEK_END);
   long fileSize = ftell(filePointer);
   rewind(filePointer);
   char *buffer = (char *)malloc(fileSize + 1);
   if (!buffer) {
+    fprintf(stderr, "Memory allocation failed for file '%s'\n", fileName);
     fclose(filePointer);
     return NULL;
   }
