@@ -16,13 +16,8 @@ extern "C" {
 
 #include "include/KHR/khrplatform.h"
 
-/* Include standard GL headers via GLAD on Windows, GLES3 on others */
-#ifdef _WIN32
-/* User must provide glad or similar loader on Windows */
+/* Include standard GL headers via GLAD */
 #include "include/glad/glad.h"
-#else
-#include <GLES3/gl3.h>
-#endif
 #include <GLFW/glfw3.h>
 
 /* Forward declare stb_image function if needed in API, but it seems internal.
@@ -119,6 +114,8 @@ void createTEX(GLuint *tex, const char *imageName, int textureSlot) {
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
+  (void)scancode;
+  (void)mods;
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
