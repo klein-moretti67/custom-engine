@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 
-
 // Globals required by engine.h
 float force = 0.0f;
 
@@ -43,21 +42,27 @@ int main() {
 
   glfwSetKeyCallback(window, key_callback);
 
-  // Load Shaders
-  char *vsSource = fileReader("vertex_shader.glsl");
-  char *fsSource = fileReader("fragment_shader.glsl");
-  if (!vsSource || !fsSource) {
-    std::cerr << "Failed to read shaders" << std::endl;
-    return -1;
-  }
+  // Shaders
+  const char *vsSource =
+      "#version 330 core\n"
+      "layout (location = 0) in vec3 aPos;\n"
+      "uniform mat4 model;\n"
+      "uniform mat4 projection;\n"
+      "void main() {\n"
+      "    gl_Position = projection * model * vec4(aPos, 1.0);\n"
+      "}\0";
+
+  const char *fsSource = "#version 330 core\n"
+                         "out vec4 FragColor;\n"
+                         "uniform vec3 color;\n"
+                         "void main() {\n"
+                         "    FragColor = vec4(color, 1.0f);\n"
+                         "}\0";
 
   GLuint vs, fs, sp;
   createVS(&vs, vsSource);
   createFS(&fs, fsSource);
   createSP(&vs, &fs, &sp);
-
-  free(vsSource);
-  free(fsSource);
 
   // Setup Geometry (a simple quad)
   float vertices[] = {0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
