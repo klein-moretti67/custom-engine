@@ -16,6 +16,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libglfw3-dev libgl1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+        mkdir -p include/stb
+        curl -L https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -o include/stb/stb_image.h
 
     - name: Build
       run: make all
@@ -28,8 +30,11 @@ jobs:
     - name: Set up MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Install Make
-      run: choco install make
+    - name: Install dependencies
+      run: |
+        choco install make
+        mkdir -Force include/stb
+        curl -L https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -o include/stb/stb_image.h
 
     - name: Build
       run: make all
